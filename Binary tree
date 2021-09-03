@@ -23,3 +23,26 @@ from
     UNION 
     select P from BST
     where P is not NULL) t1; 
+    
+    (OR)
+    
+select t1.N, (case when t1.N = t2.N then 'Inner'    
+                   when t1.N = t3.N then 'leaf'
+                   else 'Root'
+              end) as categ
+from
+        (select N from BST
+             where P is not NULL
+            UNION 
+            select P from BST
+            where P is not NULL) t1
+left join (select N from BST
+                            where P is not null
+                            intersect 
+                            select P from BST) t2
+on t1.N = t2.N
+left join (select N from BST 
+                        minus 
+                        select P from bst) t3
+on t1.N = t3.N                        
+order by t1.N; 
