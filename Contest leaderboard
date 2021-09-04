@@ -1,0 +1,13 @@
+https://www.hackerrank.com/challenges/contest-leaderboard/problem
+
+select hacker_id, name, sum(final)
+from
+        (select s.hacker_id, name, max(score) as final
+        from hackers h 
+        join submissions s 
+        on h.hacker_id = s.hacker_id
+        group by s.hacker_id, name, challenge_id
+        ) t1
+group by hacker_id, name
+having sum(final) > 0
+order by sum(final) desc, hacker_id;
