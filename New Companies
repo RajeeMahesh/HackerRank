@@ -1,0 +1,52 @@
+URL : https://www.hackerrank.com/challenges/the-company/problem
+
+MY INITIAL QUERY 
+##### Here i did not take duplicate values into account 
+##### and I did not take account of companies which did not have atleast one of Lead, senior, Manager, Employees
+#### and too much use of Inner join
+
+select mt1.company_code, founder, l_count, s_count, m_count, e_count 
+from
+    (select st1.company_code, founder, l_count, s_count, m_count
+    from
+        (select lt1.company_code, founder, l_count, s_count 
+        from
+                (select c.company_code, founder, l_count 
+                from
+                        (Select count(lead_manager_code) as l_count, company_code
+                        from lead_manager
+                        group by company_code
+                        ) lt
+                join company c 
+                on lt.company_code = c.company_code) lt1
+        join 
+                (select count(senior_manager_code) as s_count, company_code
+                from senior_manager
+                group by company_code) st
+        on lt1.company_code = st.company_code) st1  
+    join
+        (select count(manager_code) as m_count, company_code 
+        from manager
+        group by company_code) mt
+    on st1.company_code = mt.company_code)mt1 
+join 
+    (select count(employee_code) as e_count, company_code 
+    from employee
+    group by company_code) et
+on mt1.company_code = et.company_code
+order by mt1.company_code;
+
+MY IMPROVISED QUERY 
+
+select c.company_code, founder, count(distinct lm.lead_manager_code) as lm_count, count(distinct               sm.senior_manager_code) as sm_count, count(distinct m.manager_code) as m_count,                   count(distinct e.employee_code) as e_count
+from company c
+left join lead_manager lm
+on c.company_code = lm.company_code
+left join senior_manager sm
+on c.company_code = sm.company_code
+left join manager m 
+on c.company_code = m.company_code
+left join employee e 
+on c.company_code = e.company_code
+group by c.company_code, founder
+order by c.company_code;
