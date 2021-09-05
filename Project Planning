@@ -1,0 +1,24 @@
+URL : https://www.hackerrank.com/challenges/sql-projects/problem
+It took a heavy toil on me on converting the rows to date ranges
+
+select start_date, end_date
+from 
+    (select start_date, rank() over(order by start_date) as project_no 
+    from
+        (select (case when (end_lag <> start_date) or end_lag is null then start_date end) as start_date, 
+               (case when (start_lead <> end_date) or start_lead is null then end_date end) as end_date
+        from
+            (select lead(start_date) over(order by start_date) as start_lead, start_date, end_date, lag(end_date) over(order by end_date) as end_lag
+            from projects) t1)
+    where start_date is not null) st
+join 
+    (select end_date, rank() over(order by end_date) as project_no
+    from
+        (select (case when (end_lag <> start_date) or end_lag is null then start_date end) as start_date, 
+               (case when (start_lead <> end_date) or start_lead is null then end_date end) as end_date
+        from
+            (select lead(start_date) over(order by start_date) as start_lead, start_date, end_date, lag(end_date) over(order by end_date) as end_lag
+            from projects) t1)
+    where end_date is not null)et
+on st.project_no = et.project_no
+order by (end_date - start_date), start_date; 
